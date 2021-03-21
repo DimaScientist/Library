@@ -1,0 +1,31 @@
+﻿@model Library.Models.BookEntity
+
+@{
+    ViewBag.Title = "Main Page";
+}
+
+<form id="editBook">
+    <div class="modal-content">
+        <input name="id" type="hidden" value="@Model.Id" />
+        <div class="modal-header">Книга #@Model.Id</div>
+        <p>Название <input name="name" id="nameBook" type="text" value="@Model.Name" required /></p>
+        <p>Автор <input name="author" id="authorBook" type="text" value="@Model.Author" required /></p>
+        <p>Год <input name="year" id="yearBook" type="number" value="@Model.Year" required /></p>
+        <p>Жанр <input name="genre" id="genreBook" type="text" value="@Model.Genre" required /></p>
+        <p>Описание</p>
+        <p>
+            <textarea name="description" rows="10" cols="45" type="text" maxlength="50">@Model.Description</textarea>
+        </p>
+        <div class="modal-buttons">
+            <a href="#" class="modal-button" onclick="cancel()">Закрыть</a>
+            <a href="#" class="modal-button" onclick="saveEditData()">Сохранить</a>
+        </div>
+    </div>
+</form>
+
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+}

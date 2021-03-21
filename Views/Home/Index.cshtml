@@ -1,0 +1,158 @@
+﻿@model Library.Models.BooksListViewModel
+
+@{
+    ViewBag.Title = "Main Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div id="deleteModal" class="modal">
+    <form id="Delete">
+        <div class="modal-content">
+            <div class="modal-header">Вы хотите удалить?</div>
+            <div class="modal-buttons">
+                <a href="#" class="modal-button" id="cancelDelBtn">Закрыть</a>
+                <a href="#" class="modal-button" id="deleteBtn">Удалить</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="addModal" class="modal" data-url='@Url.Action("NewBook", "Home")' role="dialog"></div>
+
+<div id="editModal" class="modal" data-url='@Url.Action("EditBook", "Home")' role="dialog">Hello</div>
+
+<div class="main">
+    <button type="button" class="add-button" data-toggle="modal" data-target="#addModal" onclick="Add()">+ Книга</button>
+
+    <form>
+        <div class="filter-block">
+            <p>Параметры поиска</p>
+            <div class="filter-line">Автор:<input name="author" type="text" /></div>
+            <div class="filter-line">Год издания: <input name="year" type="number" /></div>
+            <div class="filter-line">Жанр: <input name="genre" type="text" /></div>
+            <div class="filter-line"><input type="submit" value="Фильтр" /></div>
+        </div>
+    </form>
+    <div class="table-book">
+        <div class="head row">
+            <div class="element">Название книги</div>
+            <div class="element">Автор</div>
+            <div class="element">Год</div>
+            <div class="filler"></div>
+        </div>
+
+        @foreach (var book in Model.BookGridEntities)
+        {
+            <div class="row">
+                <div class="element">@Html.DisplayFor(bookItem => book.Name)</div>
+                <div class="element">@Html.DisplayFor(bookItem => book.Author)</div>
+                <div class="element">@Html.DisplayFor(bookItem => book.Year)</div>
+                <div class="edit-modal-button"><button type="button" id="#editButton" data-toggle="modal" data-target="#editModal"><img src="~/Images/pen.png" alt="ред." onclick="Edit(@book.Id)"/></button></div>
+                <div class="del-button"><button type="button"  data-toggle="modal" data-target="#deleteModal" onclick="Confirm(@book.Id)"><img src="~/Images/delete.png" alt="уд." /></button></div>
+            </div>
+
+            <input type="hidden" id="bookId"/>
+        }
+    </div>
+</div>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+<script>
+    $(document).ready(function () {
+
+        $("#cancelDelBtn").click(function () {
+            window.location.href = "/Home/Index";
+        })
+
+        $("#deleteBtn").click(function () {
+            var _id = $("#bookId").val();
+            $.ajax({
+                type: "POST",
+                url: "/Home/Delete",
+                data: { id: _id },
+                success: function (result) {
+                    if (result) {
+                        window.location.href = "/Home/Index";
+                    }
+                    else {
+                        alert("Удаление невозможно");
+                    }
+                }
+            });
+        });
+    });
+
+    function saveNewData() {
+        var bookData = $("#newBook").serialize();
+        var name = $("#nameBook").val();
+        var author = $("#authorBook").val();
+        var year = Number($("#yearBook").val());
+        var genre = $("#genreBook").val();
+        if ((name.length > 0)
+            && (author.length > 0)
+            && (year != 0)
+            && (genre.length > 0)) {
+            $.ajax({
+                type: "POST",
+                url: "/Home/NewBook",
+                data: bookData,
+                success: function () {
+                    window.location.href = "/Home/Index";
+                }
+            });
+        }
+    }
+
+    function Confirm(_id) {
+        $("#bookId").val(_id);
+    }
+
+    function Edit(_id) {
+
+        var url = $("#editModal").data('url') + "?id=" + _id;
+        $.get(url, function (data) {
+            $("#editModal").html(data);
+        })
+    }
+
+    function Add() {
+        var url = $("#addModal").data('url');
+        $.get(url, function (data) {
+            $("#addModal").html(data);
+        });
+    }
+
+    function saveEditData() {
+        var bookData = $("#editBook").serialize();
+        var name = $("#nameBook").val();
+        var author = $("#authorBook").val();
+        var year = Number($("#yearBook").val());
+        var genre = $("#genreBook").val();
+        if ((name.length > 0)
+            && (author.length > 0)
+            && (year != 0)
+            && (genre.length > 0)) {
+            $.ajax({
+                type: "POST",
+                url: "/Home/EditBook",
+                data: bookData,
+                success: function () {
+                    window.location.href = "/Home/Index";
+                }
+            });
+        }
+    }
+
+    function cancel() {
+        window.location.href = "/Home/Index";
+    }
+
+</script>
+}
+
+
+
